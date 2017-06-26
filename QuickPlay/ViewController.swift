@@ -14,7 +14,7 @@ class ViewController: UIViewController {
   @IBOutlet weak var videoTable: UITableView!
   
   var imagePicker: UIImagePickerController!
-  var videoURLs = [NSURL]()
+  var videoURLs = [URL]()
   var currentTableIndex = -1
 
   override func viewDidLoad() {
@@ -27,74 +27,74 @@ class ViewController: UIViewController {
     // Dispose of any resources that can be recreated.
   }
 
-  @IBAction func addVideoClip(sender: AnyObject) {
+  @IBAction func addVideoClip(_ sender: AnyObject) {
     imagePicker = UIImagePickerController()
     imagePicker.delegate = self
-    imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+    imagePicker.sourceType = UIImagePickerControllerSourceType.photoLibrary
     imagePicker.allowsEditing = false
     imagePicker.mediaTypes = ["public.movie"]
     
-    presentViewController(imagePicker, animated: true, completion: nil)
+    present(imagePicker, animated: true, completion: nil)
   }
   
-  @IBAction func addRemoteStream(sender: AnyObject) {
+  @IBAction func addRemoteStream(_ sender: AnyObject) {
     let theAlert = UIAlertController(title: "Add Remote Stream",
       message: "Enter URL for remote stream.",
-      preferredStyle: UIAlertControllerStyle.Alert)
+      preferredStyle: UIAlertControllerStyle.alert)
     
-    theAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
-    theAlert.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.Default, handler: {
+    theAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
+    theAlert.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.default, handler: {
       action in
       
       let theTextField = theAlert.textFields![0] as UITextField
-      self.addVideoURL(NSURL(string: theTextField.text!)!)
+      self.addVideoURL(URL(string: theTextField.text!)!)
     }))
     
-    theAlert.addTextFieldWithConfigurationHandler({
+    theAlert.addTextField(configurationHandler: {
       textField in
       textField.text = "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"
     })
     
-    presentViewController(theAlert, animated: true, completion:nil)
+    present(theAlert, animated: true, completion:nil)
 
   }
   
-  func addVideoURL(url: NSURL) {
+  func addVideoURL(_ url: URL) {
     videoURLs.append(url)
     videoTable.reloadData()
   }
   
-  @IBAction func deleteVideoClip(sender: AnyObject) {
+  @IBAction func deleteVideoClip(_ sender: AnyObject) {
     if currentTableIndex != -1 {
       let theAlert = UIAlertController(title: "Remove Clip",
         message: "Are you sure you want to remove this video clip from playlist?",
-        preferredStyle: UIAlertControllerStyle.Alert)
+        preferredStyle: UIAlertControllerStyle.alert)
       
-      theAlert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
-      theAlert.addAction(UIAlertAction(title: "Yes", style: UIAlertActionStyle.Destructive, handler: {
+      theAlert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.cancel, handler: nil))
+      theAlert.addAction(UIAlertAction(title: "Yes", style: UIAlertActionStyle.destructive, handler: {
         action in
-        self.videoURLs.removeAtIndex(self.currentTableIndex)
+        self.videoURLs.remove(at: self.currentTableIndex)
         self.videoTable.reloadData()
         self.currentTableIndex = -1
       }))
       
-      presentViewController(theAlert, animated: true, completion:nil)
+      present(theAlert, animated: true, completion:nil)
 
     }
   }
   
-  @IBAction func playVideoClip(sender: AnyObject) {
+  @IBAction func playVideoClip(_ sender: AnyObject) {
 
   }
   
-  @IBAction func playAllVideoClips(sender: AnyObject) {
+  @IBAction func playAllVideoClips(_ sender: AnyObject) {
 
   }
   
   // MARK: - Helpers
   
-  func previewImageFromVideo(url: NSURL) -> UIImage? {
-    let asset = AVAsset(URL: url)
+  func previewImageFromVideo(_ url: URL) -> UIImage? {
+    let asset = AVAsset(url: url)
     let imageGenerator = AVAssetImageGenerator(asset: asset)
     imageGenerator.appliesPreferredTrackTransform = true
     
@@ -102,8 +102,8 @@ class ViewController: UIViewController {
     time.value = min(time.value, 2)
     
     do {
-      let imageRef = try imageGenerator.copyCGImageAtTime(time, actualTime: nil)
-      return UIImage(CGImage: imageRef)
+      let imageRef = try imageGenerator.copyCGImage(at: time, actualTime: nil)
+      return UIImage(cgImage: imageRef)
     } catch {
       return nil
     }
@@ -115,17 +115,17 @@ class ViewController: UIViewController {
 // MARK: - UIImagePickerControllerDelegate
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   
-  func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
-    let theImagePath: NSURL = info["UIImagePickerControllerReferenceURL"] as! NSURL
+  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    let theImagePath: URL = info["UIImagePickerControllerReferenceURL"] as! URL
     addVideoURL(theImagePath)
     
-    imagePicker.dismissViewControllerAnimated(true, completion: nil)
+    imagePicker.dismiss(animated: true, completion: nil)
     imagePicker = nil
   }
   
   
-  func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-    imagePicker.dismissViewControllerAnimated(true, completion: nil)
+  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    imagePicker.dismiss(animated: true, completion: nil)
     imagePicker = nil
   }
 
@@ -134,11 +134,11 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
 
 // MARK: - UITableViewDataSource
 extension ViewController: UITableViewDataSource {
-  func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return videoURLs.count
   }
   
-  func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+  func numberOfSections(in tableView: UITableView) -> Int {
     return 1
   }
 
@@ -146,8 +146,8 @@ extension ViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 extension ViewController: UITableViewDelegate {
-  func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier("VideoClipCell") as! VideoTableViewCell
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "VideoClipCell") as! VideoTableViewCell
     
     cell.clipName.text = "Video Clip \(indexPath.row + 1)"
     
@@ -158,7 +158,7 @@ extension ViewController: UITableViewDelegate {
     return cell
   }
   
-  func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     currentTableIndex = indexPath.row
   }
 }
